@@ -10,29 +10,37 @@ class VendorWorkerItem {
   final String id;
   String name;
   String idCard;
+  String position;
   String status; // 'hadir' | 'sakit' | 'izin' | 'alfa'
   String notes;
+  bool isOff; // true jika pekerja sedang di-off-kan / libur / nonaktif
 
   VendorWorkerItem({
     required this.id,
     required this.name,
     this.idCard = '',
+    this.position = 'Pekerja Lapangan',
     this.status = 'hadir',
     this.notes = '',
+    this.isOff = false,
   });
 
   VendorWorkerItem copyWith({
     String? name,
     String? idCard,
+    String? position,
     String? status,
     String? notes,
+    bool? isOff,
   }) {
     return VendorWorkerItem(
       id: id,
       name: name ?? this.name,
       idCard: idCard ?? this.idCard,
+      position: position ?? this.position,
       status: status ?? this.status,
       notes: notes ?? this.notes,
+      isOff: isOff ?? this.isOff,
     );
   }
 }
@@ -60,10 +68,12 @@ class VendorTeamGroup {
   });
 
   int get totalWorkers => workers.length;
-  int get countHadir => workers.where((w) => w.status == 'hadir').length;
-  int get countSakit => workers.where((w) => w.status == 'sakit').length;
-  int get countIzin => workers.where((w) => w.status == 'izin').length;
-  int get countAlfa => workers.where((w) => w.status == 'alfa').length;
+  int get activeWorkersCount => workers.where((w) => !w.isOff).length;
+  int get offWorkersCount => workers.where((w) => w.isOff).length;
+  int get countHadir => workers.where((w) => !w.isOff && w.status == 'hadir').length;
+  int get countSakit => workers.where((w) => !w.isOff && w.status == 'sakit').length;
+  int get countIzin => workers.where((w) => !w.isOff && w.status == 'izin').length;
+  int get countAlfa => workers.where((w) => !w.isOff && w.status == 'alfa').length;
 }
 
 class VendorWorkerAttendancePage extends StatefulWidget {
@@ -139,18 +149,17 @@ class _VendorWorkerAttendancePageState
 
         for (final v in vendorVisitors) {
           final compName = v.company.isNotEmpty ? v.company : 'Vendor Rekanan';
-          // Template pekerja awal (10 pekerja per tim sebagai default jika belum diisi)
           final sampleWorkers = [
-            VendorWorkerItem(id: 'w1', name: 'Ahmad Supardi', status: 'hadir'),
-            VendorWorkerItem(id: 'w2', name: 'Bambang Irawan', status: 'hadir'),
-            VendorWorkerItem(id: 'w3', name: 'Dedi Kurniawan', status: 'hadir'),
-            VendorWorkerItem(id: 'w4', name: 'Eko Prasetyo', status: 'hadir'),
-            VendorWorkerItem(id: 'w5', name: 'Fajar Nugraha', status: 'sakit', notes: 'Demam'),
-            VendorWorkerItem(id: 'w6', name: 'Guruh Santoso', status: 'hadir'),
-            VendorWorkerItem(id: 'w7', name: 'Hendri Gunawan', status: 'izin', notes: 'Urusan Keluarga'),
-            VendorWorkerItem(id: 'w8', name: 'Indra Lesmana', status: 'hadir'),
-            VendorWorkerItem(id: 'w9', name: 'Joko Widodo', status: 'hadir'),
-            VendorWorkerItem(id: 'w10', name: 'Kusuma Wardana', status: 'alfa', notes: 'Tanpa Keterangan'),
+            VendorWorkerItem(id: 'w1', name: 'Ahmad Supardi', position: 'Mandor Lapangan', status: 'hadir'),
+            VendorWorkerItem(id: 'w2', name: 'Bambang Irawan', position: 'Teknisi Listrik', status: 'hadir'),
+            VendorWorkerItem(id: 'w3', name: 'Dedi Kurniawan', position: 'Tukang Bangunan', status: 'hadir'),
+            VendorWorkerItem(id: 'w4', name: 'Eko Prasetyo', position: 'Helper', status: 'hadir'),
+            VendorWorkerItem(id: 'w5', name: 'Fajar Nugraha', position: 'Tukang Las', status: 'sakit', notes: 'Demam tinggi'),
+            VendorWorkerItem(id: 'w6', name: 'Guruh Santoso', position: 'Operator Genset', isOff: true, notes: 'Shift Libur Mingguan'),
+            VendorWorkerItem(id: 'w7', name: 'Hendri Gunawan', position: 'Tukang Bangunan', status: 'izin', notes: 'Urusan Keluarga'),
+            VendorWorkerItem(id: 'w8', name: 'Indra Lesmana', position: 'Helper', status: 'hadir'),
+            VendorWorkerItem(id: 'w9', name: 'Joko Widodo', position: 'Teknisi Mekanikal', status: 'hadir'),
+            VendorWorkerItem(id: 'w10', name: 'Kusuma Wardana', position: 'Pekerja Lapangan', status: 'alfa', notes: 'Tanpa Keterangan'),
           ];
 
           loadedGroups.add(
@@ -180,16 +189,16 @@ class _VendorWorkerAttendancePageState
             date: _selectedDate,
             isVerified: true,
             workers: [
-              VendorWorkerItem(id: 'w1', name: 'Ahmad Supardi', status: 'hadir'),
-              VendorWorkerItem(id: 'w2', name: 'Bambang Irawan', status: 'hadir'),
-              VendorWorkerItem(id: 'w3', name: 'Dedi Kurniawan', status: 'hadir'),
-              VendorWorkerItem(id: 'w4', name: 'Eko Prasetyo', status: 'hadir'),
-              VendorWorkerItem(id: 'w5', name: 'Fajar Nugraha', status: 'sakit', notes: 'Demam'),
-              VendorWorkerItem(id: 'w6', name: 'Guruh Santoso', status: 'hadir'),
-              VendorWorkerItem(id: 'w7', name: 'Hendri Gunawan', status: 'izin', notes: 'Urusan Keluarga'),
-              VendorWorkerItem(id: 'w8', name: 'Indra Lesmana', status: 'hadir'),
-              VendorWorkerItem(id: 'w9', name: 'Joko Widodo', status: 'hadir'),
-              VendorWorkerItem(id: 'w10', name: 'Kusuma Wardana', status: 'alfa', notes: 'Tanpa Keterangan'),
+              VendorWorkerItem(id: 'w1', name: 'Ahmad Supardi', position: 'Mandor Lapangan', status: 'hadir'),
+              VendorWorkerItem(id: 'w2', name: 'Bambang Irawan', position: 'Teknisi Listrik', status: 'hadir'),
+              VendorWorkerItem(id: 'w3', name: 'Dedi Kurniawan', position: 'Tukang Bangunan', status: 'hadir'),
+              VendorWorkerItem(id: 'w4', name: 'Eko Prasetyo', position: 'Helper', status: 'hadir'),
+              VendorWorkerItem(id: 'w5', name: 'Fajar Nugraha', position: 'Tukang Las', status: 'sakit', notes: 'Demam'),
+              VendorWorkerItem(id: 'w6', name: 'Guruh Santoso', position: 'Operator Genset', isOff: true, notes: 'Shift Libur Mingguan'),
+              VendorWorkerItem(id: 'w7', name: 'Hendri Gunawan', position: 'Tukang Bangunan', status: 'izin', notes: 'Urusan Keluarga'),
+              VendorWorkerItem(id: 'w8', name: 'Indra Lesmana', position: 'Helper', status: 'hadir'),
+              VendorWorkerItem(id: 'w9', name: 'Joko Widodo', position: 'Teknisi Mekanikal', status: 'hadir'),
+              VendorWorkerItem(id: 'w10', name: 'Kusuma Wardana', position: 'Pekerja Lapangan', status: 'alfa', notes: 'Tanpa Keterangan'),
             ],
           ),
           VendorTeamGroup(
@@ -201,11 +210,11 @@ class _VendorWorkerAttendancePageState
             date: _selectedDate,
             isVerified: false,
             workers: [
-              VendorWorkerItem(id: 'w11', name: 'Rudi Hartono', status: 'hadir'),
-              VendorWorkerItem(id: 'w12', name: 'Slamet Riyadi', status: 'hadir'),
-              VendorWorkerItem(id: 'w13', name: 'Teguh Prakoso', status: 'hadir'),
-              VendorWorkerItem(id: 'w14', name: 'Wahyu Hidayat', status: 'sakit', notes: 'Flu berat'),
-              VendorWorkerItem(id: 'w15', name: 'Zaenal Abidin', status: 'hadir'),
+              VendorWorkerItem(id: 'w11', name: 'Rudi Hartono', position: 'Tukang Pipa', status: 'hadir'),
+              VendorWorkerItem(id: 'w12', name: 'Slamet Riyadi', position: 'Helper', status: 'hadir'),
+              VendorWorkerItem(id: 'w13', name: 'Teguh Prakoso', position: 'Tukang Las', status: 'hadir'),
+              VendorWorkerItem(id: 'w14', name: 'Wahyu Hidayat', position: 'Teknisi', status: 'sakit', notes: 'Flu berat'),
+              VendorWorkerItem(id: 'w15', name: 'Zaenal Abidin', position: 'Pekerja Lapangan', isOff: true, notes: 'Off / Cuti'),
             ],
           ),
         ];
@@ -238,12 +247,17 @@ class _VendorWorkerAttendancePageState
     return _groups.where((g) {
       return g.companyName.toLowerCase().contains(q) ||
           g.picName.toLowerCase().contains(q) ||
-          g.workers.any((w) => w.name.toLowerCase().contains(q));
+          g.workers.any((w) =>
+              w.name.toLowerCase().contains(q) ||
+              w.position.toLowerCase().contains(q) ||
+              w.idCard.toLowerCase().contains(q));
     }).toList();
   }
 
   int get _grandTotalPekerja =>
       _groups.fold(0, (acc, g) => acc + g.totalWorkers);
+  int get _grandTotalOff =>
+      _groups.fold(0, (acc, g) => acc + g.offWorkersCount);
   int get _grandTotalHadir =>
       _groups.fold(0, (acc, g) => acc + g.countHadir);
   int get _grandTotalSakit =>
@@ -256,20 +270,274 @@ class _VendorWorkerAttendancePageState
   void _tandaiSemuaHadir(VendorTeamGroup group) {
     setState(() {
       for (final w in group.workers) {
-        w.status = 'hadir';
+        if (!w.isOff) {
+          w.status = 'hadir';
+        }
       }
-      _notice = 'Semua pekerja ${group.companyName} ditandai Hadir.';
+      _notice = 'Semua pekerja aktif ${group.companyName} ditandai Hadir.';
     });
   }
 
   void _ubahStatusPekerja(VendorWorkerItem worker, String statusBaru) {
     setState(() {
+      final wasOff = worker.isOff;
       worker.status = statusBaru;
+      if (wasOff) {
+        worker.isOff = false;
+        _notice = 'Pekerja "${worker.name}" diaktifkan dan ditandai ${statusBaru.toUpperCase()}.';
+      }
     });
+  }
+
+  /// Toggle status aktif / OFF pekerja
+  void _toggleOffPekerja(VendorWorkerItem worker) {
+    setState(() {
+      worker.isOff = !worker.isOff;
+      if (worker.isOff) {
+        _notice = 'Pekerja "${worker.name}" berhasil di-OFF-kan (Nonaktif / Libur).';
+      } else {
+        _notice = 'Pekerja "${worker.name}" kembali diaktifkan (ON).';
+      }
+    });
+  }
+
+  /// Dialog untuk mengedit nama lengkap, nomor identitas (KTP), dan posisi pekerja
+  Future<void> _dialogEditNamaPekerja(VendorWorkerItem worker) async {
+    final nameCtrl = TextEditingController(text: worker.name);
+    final idCardCtrl = TextEditingController(text: worker.idCard);
+    final posCtrl = TextEditingController(text: worker.position);
+
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppTheme.panelAlt,
+        title: Row(
+          children: const [
+            Icon(Icons.drive_file_rename_outline, color: AppTheme.brandBlue, size: 22),
+            SizedBox(width: 8),
+            Text('Edit Data / Nama Pekerja', style: TextStyle(color: AppTheme.fg, fontSize: 16)),
+          ],
+        ),
+        content: SizedBox(
+          width: 440,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: nameCtrl,
+                autofocus: true,
+                style: const TextStyle(color: AppTheme.fg),
+                decoration: const InputDecoration(
+                  labelText: 'Nama Lengkap Pekerja *',
+                  hintText: 'Misal: Sutrisno Hadi',
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: idCardCtrl,
+                style: const TextStyle(color: AppTheme.fg),
+                decoration: const InputDecoration(
+                  labelText: 'Nomor KTP / Identitas',
+                  hintText: '320xxxxxxxxxxxxx (opsional)',
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: posCtrl,
+                style: const TextStyle(color: AppTheme.fg),
+                decoration: const InputDecoration(
+                  labelText: 'Posisi / Bidang Tugas',
+                  hintText: 'Misal: Tukang Las, Teknisi Listrik',
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              if (nameCtrl.text.trim().isEmpty) return;
+              Navigator.pop(ctx, true);
+            },
+            icon: const Icon(Icons.check, size: 16),
+            label: const Text('Simpan Perubahan'),
+          ),
+        ],
+      ),
+    );
+
+    if (saved == true && nameCtrl.text.trim().isNotEmpty) {
+      setState(() {
+        final oldName = worker.name;
+        worker.name = nameCtrl.text.trim();
+        worker.idCard = idCardCtrl.text.trim();
+        worker.position = posCtrl.text.trim().isEmpty ? 'Pekerja Lapangan' : posCtrl.text.trim();
+        _notice = 'Nama pekerja "$oldName" berhasil diperbarui menjadi "${worker.name}".';
+      });
+    }
+  }
+
+  /// Dialog untuk mengedit kehadiran lengkap (status Hadir/Sakit/Izin/Alfa, catatan, dan toggle OFF)
+  Future<void> _dialogEditKehadiran(VendorWorkerItem worker) async {
+    final noteCtrl = TextEditingController(text: worker.notes);
+    String selectedStatus = worker.status;
+    bool currentIsOff = worker.isOff;
+
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) => AlertDialog(
+          backgroundColor: AppTheme.panelAlt,
+          title: Row(
+            children: [
+              const Icon(Icons.edit_calendar_outlined, color: AppTheme.brandGold, size: 22),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Edit Kehadiran — ${worker.name}',
+                  style: const TextStyle(color: AppTheme.fg, fontSize: 16),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          content: SizedBox(
+            width: 460,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Panel Toggle OFF / AKTIF
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: currentIsOff
+                        ? AppTheme.badRed.withValues(alpha: 0.12)
+                        : AppTheme.okGreen.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: currentIsOff ? AppTheme.badRed : AppTheme.okGreen,
+                      width: 1.2,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            currentIsOff ? Icons.pause_circle_filled : Icons.check_circle,
+                            size: 20,
+                            color: currentIsOff ? AppTheme.badRed : AppTheme.okGreen,
+                          ),
+                          const SizedBox(width: 8),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                currentIsOff ? 'STATUS: OFF / NONAKTIF' : 'STATUS: AKTIF BERTUGAS',
+                                style: TextStyle(
+                                  color: currentIsOff ? AppTheme.badRed : AppTheme.okGreen,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              Text(
+                                currentIsOff ? 'Pekerja sedang libur atau tidak bertugas' : 'Pekerja aktif dalam perhitungan absensi',
+                                style: const TextStyle(color: AppTheme.muted, fontSize: 10),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Switch(
+                        value: !currentIsOff,
+                        activeThumbColor: AppTheme.okGreen,
+                        inactiveThumbColor: AppTheme.badRed,
+                        onChanged: (val) {
+                          setModalState(() => currentIsOff = !val);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+
+                const Text(
+                  'Pilihan Status Kehadiran:',
+                  style: TextStyle(color: AppTheme.muted, fontSize: 12, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 6),
+                DropdownButtonFormField<String>(
+                  initialValue: selectedStatus,
+                  dropdownColor: AppTheme.panelAlt,
+                  style: const TextStyle(color: AppTheme.fg),
+                  decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 'hadir', child: Text('🟢 Hadir (Masuk & Bekerja)')),
+                    DropdownMenuItem(value: 'sakit', child: Text('🟡 Sakit (Izin Medis / Surat Dokter)')),
+                    DropdownMenuItem(value: 'izin', child: Text('🔵 Izin (Keperluan Khusus / Mandor)')),
+                    DropdownMenuItem(value: 'alfa', child: Text('🔴 Alfa (Tanpa Keterangan)')),
+                  ],
+                  onChanged: (val) {
+                    if (val != null) {
+                      setModalState(() {
+                        selectedStatus = val;
+                        // Jika memilih status aktif, otomatis buka mode aktif
+                        if (currentIsOff) currentIsOff = false;
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: noteCtrl,
+                  maxLines: 2,
+                  style: const TextStyle(color: AppTheme.fg),
+                  decoration: const InputDecoration(
+                    labelText: 'Catatan / Alasan Kehadiran',
+                    hintText: 'Misal: Izin pulang kampung / Sakit flu / Penugasan area lain',
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Batal'),
+            ),
+            ElevatedButton.icon(
+              onPressed: () => Navigator.pop(ctx, true),
+              icon: const Icon(Icons.check, size: 16),
+              label: const Text('Simpan Kehadiran'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (saved == true) {
+      setState(() {
+        worker.status = selectedStatus;
+        worker.notes = noteCtrl.text.trim();
+        worker.isOff = currentIsOff;
+        _notice = 'Kehadiran "${worker.name}" berhasil disimpan: ${worker.isOff ? "OFF (Libur)" : worker.status.toUpperCase()}.';
+      });
+    }
   }
 
   Future<void> _dialogTambahPekerja(VendorTeamGroup group) async {
     final nameCtrl = TextEditingController();
+    final idCardCtrl = TextEditingController();
+    final posCtrl = TextEditingController(text: 'Pekerja Lapangan');
     final noteCtrl = TextEditingController();
     String selectedStatus = 'hadir';
 
@@ -282,43 +550,66 @@ class _VendorWorkerAttendancePageState
             'Tambah Pekerja — ${group.companyName}',
             style: const TextStyle(color: AppTheme.fg),
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameCtrl,
-                style: const TextStyle(color: AppTheme.fg),
-                decoration: const InputDecoration(
-                  labelText: 'Nama Lengkap Pekerja',
-                  hintText: 'Misal: Sutrisno',
-                ),
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                initialValue: selectedStatus,
-                dropdownColor: AppTheme.panelAlt,
-                style: const TextStyle(color: AppTheme.fg),
-                decoration: const InputDecoration(labelText: 'Status Kehadiran'),
-                items: const [
-                  DropdownMenuItem(value: 'hadir', child: Text('Hadir')),
-                  DropdownMenuItem(value: 'sakit', child: Text('Sakit')),
-                  DropdownMenuItem(value: 'izin', child: Text('Izin')),
-                  DropdownMenuItem(value: 'alfa', child: Text('Alfa')),
+          content: SizedBox(
+            width: 440,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: nameCtrl,
+                    style: const TextStyle(color: AppTheme.fg),
+                    decoration: const InputDecoration(
+                      labelText: 'Nama Lengkap Pekerja *',
+                      hintText: 'Misal: Sutrisno',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: idCardCtrl,
+                    style: const TextStyle(color: AppTheme.fg),
+                    decoration: const InputDecoration(
+                      labelText: 'Nomor KTP / Identitas',
+                      hintText: '320xxxxxxxxxxxxx (opsional)',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: posCtrl,
+                    style: const TextStyle(color: AppTheme.fg),
+                    decoration: const InputDecoration(
+                      labelText: 'Posisi / Jabatan',
+                      hintText: 'Misal: Pekerja Lapangan / Teknisi',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<String>(
+                    initialValue: selectedStatus,
+                    dropdownColor: AppTheme.panelAlt,
+                    style: const TextStyle(color: AppTheme.fg),
+                    decoration: const InputDecoration(labelText: 'Status Kehadiran Awal'),
+                    items: const [
+                      DropdownMenuItem(value: 'hadir', child: Text('🟢 Hadir')),
+                      DropdownMenuItem(value: 'sakit', child: Text('🟡 Sakit')),
+                      DropdownMenuItem(value: 'izin', child: Text('🔵 Izin')),
+                      DropdownMenuItem(value: 'alfa', child: Text('🔴 Alfa')),
+                    ],
+                    onChanged: (val) {
+                      if (val != null) setModalState(() => selectedStatus = val);
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: noteCtrl,
+                    style: const TextStyle(color: AppTheme.fg),
+                    decoration: const InputDecoration(
+                      labelText: 'Keterangan (Opsional)',
+                      hintText: 'Misal: Penugasan khusus atau tim pengganti',
+                    ),
+                  ),
                 ],
-                onChanged: (val) {
-                  if (val != null) setModalState(() => selectedStatus = val);
-                },
               ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: noteCtrl,
-                style: const TextStyle(color: AppTheme.fg),
-                decoration: const InputDecoration(
-                  labelText: 'Keterangan (Opsional)',
-                  hintText: 'Misal: Pengganti tim',
-                ),
-              ),
-            ],
+            ),
           ),
           actions: [
             TextButton(
@@ -343,11 +634,46 @@ class _VendorWorkerAttendancePageState
           VendorWorkerItem(
             id: 'w_${DateTime.now().millisecondsSinceEpoch}',
             name: nameCtrl.text.trim(),
+            idCard: idCardCtrl.text.trim(),
+            position: posCtrl.text.trim().isEmpty ? 'Pekerja Lapangan' : posCtrl.text.trim(),
             status: selectedStatus,
             notes: noteCtrl.text.trim(),
+            isOff: false,
           ),
         );
-        _notice = 'Pekerja "${nameCtrl.text.trim()}" berhasil ditambahkan.';
+        _notice = 'Pekerja "${nameCtrl.text.trim()}" berhasil ditambahkan ke ${group.companyName}.';
+      });
+    }
+  }
+
+  Future<void> _dialogHapusPekerja(VendorTeamGroup group, VendorWorkerItem worker) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppTheme.panelAlt,
+        title: const Text('Hapus Pekerja dari Tim', style: TextStyle(color: AppTheme.fg)),
+        content: Text(
+          'Apakah Anda yakin ingin menghapus "${worker.name}" dari roster pekerja ${group.companyName}?',
+          style: const TextStyle(color: AppTheme.muted),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.badRed),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Hapus', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      setState(() {
+        group.workers.removeWhere((w) => w.id == worker.id);
+        _notice = 'Pekerja "${worker.name}" berhasil dihapus dari daftar.';
       });
     }
   }
@@ -356,18 +682,20 @@ class _VendorWorkerAttendancePageState
     setState(() {
       group.isVerified = true;
       _notice =
-          'Rekapitulasi absensi ${group.companyName} (${group.totalWorkers} pekerja: Hadir ${group.countHadir}, Sakit ${group.countSakit}, Izin ${group.countIzin}, Alfa ${group.countAlfa}) berhasil disimpan.';
+          'Rekapitulasi absensi ${group.companyName} (${group.activeWorkersCount} Aktif, ${group.offWorkersCount} OFF: Hadir ${group.countHadir}, Sakit ${group.countSakit}, Izin ${group.countIzin}, Alfa ${group.countAlfa}) berhasil disimpan.';
     });
   }
 
   void _eksporCsv(VendorTeamGroup group) {
     final dateStr = _formatIsoDate(group.date);
     final buffer = StringBuffer();
-    buffer.writeln('No,Nama Pekerja,Perusahaan,PIC Mandor,Tanggal,Status,Keterangan');
+    buffer.writeln('No,Nama Pekerja,No KTP,Posisi,Perusahaan,PIC Mandor,Tanggal,Status Keaktifan,Status Kehadiran,Keterangan');
     for (var i = 0; i < group.workers.length; i++) {
       final w = group.workers[i];
+      final keaktifan = w.isOff ? 'OFF' : 'AKTIF';
+      final kehadiran = w.isOff ? 'OFF / LIBUR' : w.status.toUpperCase();
       buffer.writeln(
-        '${i + 1},"${w.name}","${group.companyName}","${group.picName}",$dateStr,${w.status.toUpperCase()},"${w.notes}"',
+        '${i + 1},"${w.name}","${w.idCard}","${w.position}","${group.companyName}","${group.picName}",$dateStr,$keaktifan,$kehadiran,"${w.notes}"',
       );
     }
 
@@ -377,7 +705,7 @@ class _VendorWorkerAttendancePageState
         backgroundColor: AppTheme.panelAlt,
         title: Text('Hasil Ekspor CSV — ${group.companyName}'),
         content: SizedBox(
-          width: 500,
+          width: 580,
           child: SelectableText(
             buffer.toString(),
             style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
@@ -406,7 +734,7 @@ class _VendorWorkerAttendancePageState
           ConsoleHeader(
             title: 'Absensi Pekerja Vendor',
             subtitle:
-                '1 Akun PIC bertanggung jawab atas daftar pekerja tim (Hadir, Sakit, Izin, Alfa). Kelola kehadiran harian seluruh pekerja rekanan.',
+                'Setiap pekerja dapat di-OFF-kan, diedit namanya, dan diatur status kehadirannya (Hadir, Sakit, Izin, Alfa).',
             icon: Icons.groups_outlined,
             actions: [
               OutlinedButton.icon(
@@ -460,7 +788,7 @@ class _VendorWorkerAttendancePageState
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(width: 380, child: _buildVendorListPane()),
+                SizedBox(width: 390, child: _buildVendorListPane()),
                 const SizedBox(width: 16),
                 Expanded(
                   child: selected == null
@@ -483,24 +811,24 @@ class _VendorWorkerAttendancePageState
       children: [
         Expanded(
           child: _metricCard(
-            label: 'Total Vendor Aktif',
+            label: 'Total Vendor',
             value: '${_groups.length}',
             sub: 'Perusahaan Terdata',
             icon: Icons.business,
             tone: AppTheme.brandBlue,
           ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 8),
         Expanded(
           child: _metricCard(
-            label: 'Total Seluruh Pekerja',
+            label: 'Total Pekerja',
             value: '$_grandTotalPekerja',
-            sub: 'Orang di lapangan',
+            sub: 'Roster tim',
             icon: Icons.people_outline,
             tone: AppTheme.fg,
           ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 8),
         Expanded(
           child: _metricCard(
             label: 'Hadir',
@@ -510,7 +838,7 @@ class _VendorWorkerAttendancePageState
             tone: AppTheme.okGreen,
           ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 8),
         Expanded(
           child: _metricCard(
             label: 'Sakit',
@@ -520,7 +848,7 @@ class _VendorWorkerAttendancePageState
             tone: AppTheme.brandGold,
           ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 8),
         Expanded(
           child: _metricCard(
             label: 'Izin',
@@ -530,7 +858,7 @@ class _VendorWorkerAttendancePageState
             tone: Colors.lightBlueAccent,
           ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 8),
         Expanded(
           child: _metricCard(
             label: 'Alfa',
@@ -538,6 +866,16 @@ class _VendorWorkerAttendancePageState
             sub: 'Tanpa kabar',
             icon: Icons.cancel_outlined,
             tone: AppTheme.badRed,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _metricCard(
+            label: 'Pekerja OFF',
+            value: '$_grandTotalOff',
+            sub: 'Libur / Nonaktif',
+            icon: Icons.pause_circle_outline,
+            tone: Colors.blueGrey,
           ),
         ),
       ],
@@ -552,7 +890,7 @@ class _VendorWorkerAttendancePageState
     required Color tone,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: AppTheme.panel.withValues(alpha: 0.65),
         borderRadius: BorderRadius.circular(16),
@@ -561,14 +899,14 @@ class _VendorWorkerAttendancePageState
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(7),
             decoration: BoxDecoration(
               color: tone.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: tone, size: 20),
+            child: Icon(icon, color: tone, size: 18),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -578,7 +916,7 @@ class _VendorWorkerAttendancePageState
                   value,
                   style: TextStyle(
                     color: tone,
-                    fontSize: 18,
+                    fontSize: 17,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -586,7 +924,7 @@ class _VendorWorkerAttendancePageState
                   label,
                   style: const TextStyle(
                     color: AppTheme.fg,
-                    fontSize: 11,
+                    fontSize: 10.5,
                     fontWeight: FontWeight.w600,
                   ),
                   overflow: TextOverflow.ellipsis,
@@ -613,7 +951,7 @@ class _VendorWorkerAttendancePageState
               style: const TextStyle(color: AppTheme.fg),
               decoration: const InputDecoration(
                 prefixIcon: Icon(Icons.search),
-                hintText: 'Cari perusahaan, PIC, nama pekerja...',
+                hintText: 'Cari vendor, PIC, nama pekerja...',
               ),
             ),
           ),
@@ -621,24 +959,37 @@ class _VendorWorkerAttendancePageState
             child: rows.isEmpty
                 ? const ConsoleMessage(
                     icon: Icons.search_off,
-                    text: 'Tidak ada data vendor yang cocok.',
+                    text: 'Tidak ada data vendor yang cocok dengan pencarian.',
                   )
                 : ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     itemCount: rows.length,
-                    separatorBuilder: (_, _) => Divider(
-                      height: 1,
-                      color: AppTheme.panelAlt.withValues(alpha: 0.7),
-                    ),
+                    separatorBuilder: (_, _) => const SizedBox(height: 8),
                     itemBuilder: (context, idx) {
                       final item = rows[idx];
                       final isSelected = item.visitorId == _selectedVisitorId;
                       return InkWell(
-                        onTap: () => setState(() => _selectedVisitorId = item.visitorId),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                          color: isSelected
-                              ? AppTheme.brandBlue.withValues(alpha: 0.18)
-                              : Colors.transparent,
+                        onTap: () {
+                          setState(() {
+                            _selectedVisitorId = item.visitorId;
+                          });
+                        },
+                        borderRadius: BorderRadius.circular(12),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 150),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? AppTheme.brandBlue.withValues(alpha: 0.15)
+                                : AppTheme.panel.withValues(alpha: 0.45),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: isSelected
+                                  ? AppTheme.brandBlue
+                                  : Colors.white.withValues(alpha: 0.05),
+                              width: isSelected ? 1.5 : 1,
+                            ),
+                          ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -650,21 +1001,21 @@ class _VendorWorkerAttendancePageState
                                       style: const TextStyle(
                                         color: AppTheme.fg,
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 14,
+                                        fontSize: 13.5,
                                       ),
                                     ),
                                   ),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                                     decoration: BoxDecoration(
                                       color: AppTheme.okGreen.withValues(alpha: 0.15),
-                                      borderRadius: BorderRadius.circular(10),
+                                      borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Text(
-                                      '${item.totalWorkers} Pekerja',
+                                      '${item.activeWorkersCount}/${item.totalWorkers} Aktif',
                                       style: const TextStyle(
                                         color: AppTheme.okGreen,
-                                        fontSize: 11,
+                                        fontSize: 10.5,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -674,27 +1025,28 @@ class _VendorWorkerAttendancePageState
                               const SizedBox(height: 4),
                               Row(
                                 children: [
-                                  const Icon(Icons.person, size: 14, color: AppTheme.muted),
+                                  const Icon(Icons.person_pin_circle_outlined, size: 13, color: AppTheme.muted),
                                   const SizedBox(width: 4),
                                   Expanded(
                                     child: Text(
                                       'PIC: ${item.picName}',
-                                      style: const TextStyle(color: AppTheme.muted, fontSize: 12),
+                                      style: const TextStyle(color: AppTheme.muted, fontSize: 11.5),
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 6),
-                              Row(
+                              Wrap(
+                                spacing: 4,
+                                runSpacing: 4,
                                 children: [
                                   _miniBadge('Hadir ${item.countHadir}', AppTheme.okGreen),
-                                  const SizedBox(width: 4),
                                   _miniBadge('Sakit ${item.countSakit}', AppTheme.brandGold),
-                                  const SizedBox(width: 4),
                                   _miniBadge('Izin ${item.countIzin}', Colors.lightBlueAccent),
-                                  const SizedBox(width: 4),
                                   _miniBadge('Alfa ${item.countAlfa}', AppTheme.badRed),
+                                  if (item.offWorkersCount > 0)
+                                    _miniBadge('OFF ${item.offWorkersCount}', Colors.blueGrey),
                                 ],
                               ),
                             ],
@@ -711,14 +1063,14 @@ class _VendorWorkerAttendancePageState
 
   Widget _miniBadge(String label, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(5),
       ),
       child: Text(
         label,
-        style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold),
+        style: TextStyle(color: color, fontSize: 9.5, fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -731,7 +1083,7 @@ class _VendorWorkerAttendancePageState
         children: [
           // Header Detail
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(
@@ -745,38 +1097,63 @@ class _VendorWorkerAttendancePageState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        group.companyName,
-                        style: const TextStyle(
-                          color: AppTheme.fg,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      Row(
+                        children: [
+                          Text(
+                            group.companyName,
+                            style: const TextStyle(
+                              color: AppTheme.fg,
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          if (group.isVerified)
+                            const Icon(Icons.verified, size: 16, color: AppTheme.okGreen),
+                        ],
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 3),
                       Text(
-                        'PIC: ${group.picName} (${group.picPhone}) • ${group.branchName}',
-                        style: const TextStyle(color: AppTheme.muted, fontSize: 12),
+                        'PIC Mandor: ${group.picName} (${group.picPhone}) • ${group.branchName}',
+                        style: const TextStyle(color: AppTheme.muted, fontSize: 11.5),
                       ),
                     ],
                   ),
                 ),
                 OutlinedButton.icon(
                   onPressed: () => _tandaiSemuaHadir(group),
-                  icon: const Icon(Icons.done_all, size: 16),
-                  label: const Text('Semua Hadir'),
+                  icon: const Icon(Icons.done_all, size: 15),
+                  label: const Text('Semua Aktif Hadir', style: TextStyle(fontSize: 12)),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton.icon(
                   onPressed: () => _dialogTambahPekerja(group),
-                  icon: const Icon(Icons.person_add, size: 16),
-                  label: const Text('Tambah Pekerja'),
+                  icon: const Icon(Icons.person_add, size: 15),
+                  label: const Text('Tambah Pekerja', style: TextStyle(fontSize: 12)),
                 ),
                 const SizedBox(width: 8),
                 IconButton(
                   tooltip: 'Ekspor Rekap CSV',
                   onPressed: () => _eksporCsv(group),
                   icon: const Icon(Icons.download, color: AppTheme.brandGold),
+                ),
+              ],
+            ),
+          ),
+
+          // Petunjuk Cepat
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            color: AppTheme.panelAlt.withValues(alpha: 0.3),
+            child: Row(
+              children: const [
+                Icon(Icons.info_outline, size: 14, color: AppTheme.brandBlue),
+                SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'Fitur Pekerja: Klik tombol [OFF / AKTIF] untuk libur/aktifkan, icon pensil untuk Edit Nama, icon kalender untuk Edit Kehadiran & Catatan.',
+                    style: TextStyle(color: AppTheme.muted, fontSize: 11),
+                  ),
                 ),
               ],
             ),
@@ -795,102 +1172,211 @@ class _VendorWorkerAttendancePageState
                     separatorBuilder: (_, _) => const SizedBox(height: 8),
                     itemBuilder: (context, idx) {
                       final worker = group.workers[idx];
-                      return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      final isOff = worker.isOff;
+
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
                         decoration: BoxDecoration(
-                          color: AppTheme.panel.withValues(alpha: 0.50),
+                          color: isOff
+                              ? AppTheme.panel.withValues(alpha: 0.22)
+                              : AppTheme.panel.withValues(alpha: 0.50),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.05),
+                            color: isOff
+                                ? AppTheme.badRed.withValues(alpha: 0.30)
+                                : Colors.white.withValues(alpha: 0.05),
+                            width: isOff ? 1.2 : 1.0,
                           ),
                         ),
                         child: Row(
                           children: [
+                            // Nomor urut / Badge Avatar
                             Container(
                               width: 32,
                               height: 32,
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
-                                color: AppTheme.brandBlue.withValues(alpha: 0.15),
+                                color: isOff
+                                    ? AppTheme.badRed.withValues(alpha: 0.15)
+                                    : AppTheme.brandBlue.withValues(alpha: 0.15),
                                 shape: BoxShape.circle,
                               ),
-                              child: Text(
-                                '${idx + 1}',
-                                style: const TextStyle(
-                                  color: AppTheme.brandBlue,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                ),
-                              ),
+                              child: isOff
+                                  ? const Icon(Icons.pause, size: 16, color: AppTheme.badRed)
+                                  : Text(
+                                      '${idx + 1}',
+                                      style: const TextStyle(
+                                        color: AppTheme.brandBlue,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                      ),
+                                    ),
                             ),
                             const SizedBox(width: 12),
+
+                            // Nama, Jabatan, Identitas, Catatan
                             Expanded(
-                              flex: 3,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    worker.name,
-                                    style: const TextStyle(
-                                      color: AppTheme.fg,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 14,
-                                    ),
+                                  Row(
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          worker.name,
+                                          style: TextStyle(
+                                            color: isOff ? AppTheme.muted : AppTheme.fg,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 13.5,
+                                            decoration: isOff ? TextDecoration.lineThrough : null,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      if (isOff) ...[
+                                        const SizedBox(width: 6),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                          decoration: BoxDecoration(
+                                            color: AppTheme.badRed.withValues(alpha: 0.15),
+                                            borderRadius: BorderRadius.circular(4),
+                                            border: Border.all(color: AppTheme.badRed.withValues(alpha: 0.4)),
+                                          ),
+                                          child: const Text(
+                                            'OFF / LIBUR',
+                                            style: TextStyle(
+                                              color: AppTheme.badRed,
+                                              fontSize: 9.5,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
                                   ),
-                                  if (worker.notes.isNotEmpty)
-                                    Text(
-                                      'Catatan: ${worker.notes}',
-                                      style: const TextStyle(
-                                        color: AppTheme.muted,
-                                        fontSize: 11,
-                                        fontStyle: FontStyle.italic,
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    '${worker.position}${worker.idCard.isNotEmpty ? " • KTP: ${worker.idCard}" : ""}',
+                                    style: const TextStyle(color: AppTheme.muted, fontSize: 11),
+                                  ),
+                                  if (worker.notes.isNotEmpty) ...[
+                                    const SizedBox(height: 2),
+                                    InkWell(
+                                      onTap: () => _dialogEditKehadiran(worker),
+                                      child: Text(
+                                        'Catatan: ${worker.notes}',
+                                        style: const TextStyle(
+                                          color: AppTheme.brandGold,
+                                          fontSize: 10.5,
+                                          fontStyle: FontStyle.italic,
+                                        ),
                                       ),
                                     ),
+                                  ],
                                 ],
                               ),
                             ),
-                            // Pilihan Opsi 4 Status: Hadir, Sakit, Izin, Alfa
+
+                            // 1. Toggle Tombol OFF / AKTIF
+                            Tooltip(
+                              message: isOff
+                                  ? 'Klik untuk Mengaktifkan Pekerja (ON)'
+                                  : 'Klik untuk Meng-OFF-kan Pekerja (Libur / Nonaktif)',
+                              child: InkWell(
+                                onTap: () => _toggleOffPekerja(worker),
+                                borderRadius: BorderRadius.circular(6),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                                  decoration: BoxDecoration(
+                                    color: isOff
+                                        ? AppTheme.badRed.withValues(alpha: 0.15)
+                                        : AppTheme.okGreen.withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(
+                                      color: isOff ? AppTheme.badRed : AppTheme.okGreen,
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        isOff ? Icons.pause_circle_filled : Icons.check_circle,
+                                        size: 13,
+                                        color: isOff ? AppTheme.badRed : AppTheme.okGreen,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        isOff ? 'OFF' : 'AKTIF',
+                                        style: TextStyle(
+                                          color: isOff ? AppTheme.badRed : AppTheme.okGreen,
+                                          fontSize: 10.5,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+
+                            // 2. Tombol Edit Nama & Data Pekerja
+                            IconButton(
+                              icon: const Icon(Icons.drive_file_rename_outline, size: 18, color: AppTheme.brandBlue),
+                              tooltip: 'Edit Nama & Identitas Pekerja',
+                              onPressed: () => _dialogEditNamaPekerja(worker),
+                            ),
+
+                            // 3. Tombol Edit Kehadiran & Catatan
+                            IconButton(
+                              icon: const Icon(Icons.edit_calendar_outlined, size: 18, color: AppTheme.brandGold),
+                              tooltip: 'Edit Status Kehadiran & Catatan Lengkap',
+                              onPressed: () => _dialogEditKehadiran(worker),
+                            ),
+                            const SizedBox(width: 4),
+
+                            // 4. Pilihan Cepat 4 Status: Hadir, Sakit, Izin, Alfa
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 _statusOptionButton(
                                   label: 'Hadir',
                                   color: AppTheme.okGreen,
-                                  isSelected: worker.status == 'hadir',
+                                  isSelected: !isOff && worker.status == 'hadir',
                                   onTap: () => _ubahStatusPekerja(worker, 'hadir'),
                                 ),
-                                const SizedBox(width: 6),
+                                const SizedBox(width: 5),
                                 _statusOptionButton(
                                   label: 'Sakit',
                                   color: AppTheme.brandGold,
-                                  isSelected: worker.status == 'sakit',
+                                  isSelected: !isOff && worker.status == 'sakit',
                                   onTap: () => _ubahStatusPekerja(worker, 'sakit'),
                                 ),
-                                const SizedBox(width: 6),
+                                const SizedBox(width: 5),
                                 _statusOptionButton(
                                   label: 'Izin',
                                   color: Colors.lightBlueAccent,
-                                  isSelected: worker.status == 'izin',
+                                  isSelected: !isOff && worker.status == 'izin',
                                   onTap: () => _ubahStatusPekerja(worker, 'izin'),
                                 ),
-                                const SizedBox(width: 6),
+                                const SizedBox(width: 5),
                                 _statusOptionButton(
                                   label: 'Alfa',
                                   color: AppTheme.badRed,
-                                  isSelected: worker.status == 'alfa',
+                                  isSelected: !isOff && worker.status == 'alfa',
                                   onTap: () => _ubahStatusPekerja(worker, 'alfa'),
                                 ),
                               ],
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 6),
+
+                            // 5. Tombol Hapus Pekerja
                             IconButton(
                               icon: const Icon(Icons.delete_outline, size: 18, color: AppTheme.badRed),
-                              tooltip: 'Hapus Pekerja',
-                              onPressed: () {
-                                setState(() {
-                                  group.workers.removeAt(idx);
-                                });
-                              },
+                              tooltip: 'Hapus Pekerja dari Tim',
+                              onPressed: () => _dialogHapusPekerja(group, worker),
                             ),
                           ],
                         ),
@@ -914,7 +1400,7 @@ class _VendorWorkerAttendancePageState
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Total ${group.totalWorkers} Pekerja • Hadir: ${group.countHadir} | Sakit: ${group.countSakit} | Izin: ${group.countIzin} | Alfa: ${group.countAlfa}',
+                  'Total ${group.totalWorkers} Pekerja (${group.activeWorkersCount} Aktif, ${group.offWorkersCount} OFF) • Hadir: ${group.countHadir} | Sakit: ${group.countSakit} | Izin: ${group.countIzin} | Alfa: ${group.countAlfa}',
                   style: const TextStyle(
                     color: AppTheme.fg,
                     fontWeight: FontWeight.w600,
@@ -949,7 +1435,7 @@ class _VendorWorkerAttendancePageState
       borderRadius: BorderRadius.circular(8),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
         decoration: BoxDecoration(
           color: isSelected ? color : color.withValues(alpha: 0.10),
           borderRadius: BorderRadius.circular(8),
