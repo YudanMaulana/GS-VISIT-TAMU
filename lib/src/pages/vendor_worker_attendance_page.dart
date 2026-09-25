@@ -737,21 +737,60 @@ class _VendorWorkerAttendancePageState
                 'Setiap pekerja dapat di-OFF-kan, diedit namanya, dan diatur status kehadirannya (Hadir, Sakit, Izin, Alfa).',
             icon: Icons.groups_outlined,
             actions: [
-              OutlinedButton.icon(
-                onPressed: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: _selectedDate,
-                    firstDate: DateTime(2025),
-                    lastDate: DateTime(2030),
-                  );
-                  if (picked != null) {
-                    setState(() => _selectedDate = picked);
-                    await _load();
-                  }
-                },
-                icon: const Icon(Icons.calendar_month, size: 16),
-                label: Text(dateLabel),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.chevron_left, size: 20),
+                    tooltip: 'Hari Sebelumnya',
+                    onPressed: () {
+                      setState(() => _selectedDate = _selectedDate.subtract(const Duration(days: 1)));
+                      _load();
+                    },
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      final now = DateTime.now();
+                      final today = DateTime(now.year, now.month, now.day);
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: _selectedDate.isAfter(today) ? today : _selectedDate,
+                        firstDate: DateTime(2025),
+                        lastDate: today, // CEGAH HARI SELANJUTNYA: Maksimal hari ini!
+                      );
+                      if (picked != null) {
+                        if (picked.isAfter(today)) return;
+                        setState(() => _selectedDate = picked);
+                        await _load();
+                      }
+                    },
+                    icon: const Icon(Icons.calendar_month, size: 16),
+                    label: Text(dateLabel),
+                  ),
+                  Builder(
+                    builder: (ctx) {
+                      final now = DateTime.now();
+                      final today = DateTime(now.year, now.month, now.day);
+                      final isTodayOrFuture = _selectedDate.isAtSameMomentAs(today) || _selectedDate.isAfter(today);
+                      return IconButton(
+                        icon: Icon(
+                          Icons.chevron_right,
+                          size: 20,
+                          color: isTodayOrFuture ? AppTheme.muted.withValues(alpha: 0.3) : AppTheme.fg,
+                        ),
+                        tooltip: isTodayOrFuture ? 'Maksimal Hari Ini (Cegah Hari Selanjutnya)' : 'Hari Berikutnya',
+                        onPressed: isTodayOrFuture
+                            ? null
+                            : () {
+                                final next = _selectedDate.add(const Duration(days: 1));
+                                if (next.isAfter(today)) return;
+                                setState(() => _selectedDate = next);
+                                _load();
+                              },
+                      );
+                    },
+                  ),
+                ],
               ),
               const SizedBox(width: 8),
               ConsoleRefreshButton(busy: _loading, onPressed: _load),
