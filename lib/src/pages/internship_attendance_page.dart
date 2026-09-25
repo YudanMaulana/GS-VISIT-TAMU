@@ -163,16 +163,14 @@ class _InternshipAttendancePageState extends State<InternshipAttendancePage> {
         final profiles = await client.visitors();
         visitors = [
           for (final v in profiles)
-            if (v.visitorType == 'magang' || v.visitorType == 'vendor')
+            if (v.visitorType == 'magang')
               InternshipVisitorRow(
                 id: v.id,
                 visitorCode: v.visitorCode,
                 fullName: v.fullName,
-                institutionName: v.visitorType == 'vendor'
-                    ? (v.company.isNotEmpty ? v.company : 'Vendor')
-                    : (v.institutionName.isNotEmpty
-                        ? v.institutionName
-                        : v.company),
+                institutionName: v.institutionName.isNotEmpty
+                    ? v.institutionName
+                    : v.company,
                 major: v.major,
                 phone: v.phone,
                 email: v.email,
@@ -360,10 +358,10 @@ class _InternshipAttendancePageState extends State<InternshipAttendancePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ConsoleHeader(
-            title: 'Absensi Magang & Vendor',
+            title: 'Absensi Magang',
             subtitle: _usingProfileFallback
-                ? 'Mode fallback profil magang & vendor — kontrak, log absensi, dan titik cabang aktif setelah endpoint backend siap'
-                : 'Pusat kelola kontrak, titik absensi radius cabang, dan monitoring presensi peserta magang & vendor.',
+                ? 'Mode fallback profil magang — kontrak, log absensi, dan titik cabang aktif setelah endpoint backend siap'
+                : 'Pusat kelola kontrak, titik absensi radius cabang, dan monitoring presensi peserta magang.',
             icon: Icons.event_available_outlined,
             actions: [
               ConsoleRefreshButton(busy: _loading, onPressed: _load),
@@ -376,13 +374,13 @@ class _InternshipAttendancePageState extends State<InternshipAttendancePage> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(width: 340, child: _listPane()),
+                SizedBox(width: 380, child: _listPane()),
                 const SizedBox(width: 16),
                 Expanded(
                   child: selected == null
                       ? const ConsoleMessage(
                           icon: Icons.badge_outlined,
-                          text: 'Belum ada peserta magang atau vendor.',
+                          text: 'Belum ada peserta magang.',
                         )
                       : _detailPane(selected),
                 ),
@@ -418,7 +416,7 @@ class _InternshipAttendancePageState extends State<InternshipAttendancePage> {
               style: const TextStyle(color: AppTheme.fg),
               decoration: const InputDecoration(
                 prefixIcon: Icon(Icons.search),
-                hintText: 'Cari nama, kampus/perusahaan, jurusan...',
+                hintText: 'Cari nama, kampus/sekolah, jurusan...',
               ),
             ),
           ),
@@ -426,7 +424,7 @@ class _InternshipAttendancePageState extends State<InternshipAttendancePage> {
             child: rows.isEmpty
                 ? const ConsoleMessage(
                     icon: Icons.search_off,
-                    text: 'Tidak ada peserta magang atau vendor yang cocok.',
+                    text: 'Tidak ada peserta magang yang cocok.',
                   )
                 : ListView.separated(
                     itemCount: rows.length,

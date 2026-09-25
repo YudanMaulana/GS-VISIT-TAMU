@@ -18,6 +18,7 @@ import 'reset_data_page.dart';
 import 'support_reports_page.dart';
 import 'transporter_checkin_page.dart';
 import 'vendor_companies_page.dart';
+import 'vendor_worker_attendance_page.dart';
 import 'walk_in_page.dart';
 
 /// Konsol Kelola Data — di balik gate admin. Lima bagian, semuanya aktif:
@@ -46,6 +47,7 @@ enum ConsolePage {
   transporterCheckin,
   transporterCheckout,
   internshipAttendance,
+  vendorAttendance,
   belumCheckin,
   secondMonitor,
   supportReports,
@@ -181,6 +183,10 @@ class _ManagementConsoleState extends State<ManagementConsole> {
         client: widget.client,
         config: widget.config,
       ),
+      ConsolePage.vendorAttendance => VendorWorkerAttendancePage(
+        client: widget.client,
+        config: widget.config,
+      ),
       ConsolePage.belumCheckin => PendingCheckinPage(
         client: widget.client,
         config: widget.config,
@@ -301,8 +307,13 @@ class _ManagementConsoleState extends State<ManagementConsole> {
                 ),
                 _navItem(
                   ConsolePage.internshipAttendance,
-                  Icons.event_available_outlined,
-                  'Absensi Magang & Vendor',
+                  Icons.school_outlined,
+                  'Absensi Magang',
+                ),
+                _navItem(
+                  ConsolePage.vendorAttendance,
+                  Icons.groups_outlined,
+                  'Absensi Pekerja Vendor',
                 ),
                 _navSection('DATA & MASTER'),
                 _navItem(
