@@ -264,10 +264,11 @@ class _TransporterCheckinPageState extends State<TransporterCheckinPage> {
           ),
           if (!_adaGoresan) ...[
             const SizedBox(height: 8),
-            const Text(
-              'Tombol aktif setelah petugas menandatangani. Server menolak '
-              'konfirmasi transporter tanpa tanda tangan petugas.',
-              style: TextStyle(color: AppTheme.muted, fontSize: 11.5, height: 1.4),
+            Text(
+              widget.kind == KonfirmasiMode.masuk
+                  ? 'Catatan Gerbang: Alur Bongkar wajib ada rincian muatan sebelum masuk. Alur Muat tiba kosong dan barang dicatat di area sebelum keluar. Tanda tangan petugas wajib dibubuhkan.'
+                  : 'Catatan Gerbang: Seluruh armada wajib memiliki catatan muatan dan verifikasi fisik sebelum konfirmasi keluar. Tanda tangan petugas wajib dibubuhkan.',
+              style: const TextStyle(color: AppTheme.muted, fontSize: 11.5, height: 1.4),
             ),
           ],
           if (hasil != null && hasil.success) ...[

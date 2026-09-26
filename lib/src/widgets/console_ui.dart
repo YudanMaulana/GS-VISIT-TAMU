@@ -358,6 +358,8 @@ String planStatusLabel(String status) => switch (status) {
       'signed' => 'Sudah tanda tangan',
       'checked_out' => 'Sudah keluar',
       'expired' => 'Dibatalkan',
+      'cancelled' => 'Dibatalkan',
+      'batal' => 'Dibatalkan',
       _ => status,
     };
 
@@ -376,7 +378,9 @@ Color planStatusTone(String status) => switch (status) {
       'checked_in' => AppTheme.brandGold,
       'signed' => AppTheme.brandGold,
       'checked_out' => AppTheme.okGreen,
-      'expired' => AppTheme.muted,
+      'expired' => AppTheme.badRed,
+      'cancelled' => AppTheme.badRed,
+      'batal' => AppTheme.badRed,
       _ => AppTheme.muted,
     };
 

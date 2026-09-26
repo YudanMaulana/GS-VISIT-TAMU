@@ -132,6 +132,13 @@ class _AreaGuestsPageState extends State<AreaGuestsPage> {
         if (widget.kind == BoardKind.transporter ? g.isTransporter : !g.isTransporter)
           g,
     ];
+    if (widget.kind == BoardKind.transporter) {
+      sesuai.sort((a, b) {
+        if (a.dibatalkan != b.dibatalkan) return a.dibatalkan ? 1 : -1;
+        if (a.onSite != b.onSite) return a.onSite ? -1 : 1;
+        return a.queueNumber.compareTo(b.queueNumber);
+      });
+    }
     return _onSiteOnly ? [for (final g in sesuai) if (g.onSite) g] : sesuai;
   }
 
@@ -235,15 +242,16 @@ class _AreaGuestsPageState extends State<AreaGuestsPage> {
   }
 
   Widget _summary(ActiveGuestBoard b) {
+    final isTransporter = widget.kind == BoardKind.transporter;
     return Wrap(
       spacing: 10,
       runSpacing: 10,
       children: [
         StatTile(
-          label: 'Total tamu',
+          label: isTransporter ? 'Total armada' : 'Total tamu',
           value: b.total,
           tone: AppTheme.brandGold,
-          icon: Icons.groups_outlined,
+          icon: isTransporter ? Icons.local_shipping_outlined : Icons.groups_outlined,
         ),
         StatTile(
           label: 'Masih di area',
@@ -258,7 +266,7 @@ class _AreaGuestsPageState extends State<AreaGuestsPage> {
           icon: Icons.check_circle_outline,
         ),
         StatTile(
-          label: 'Form lengkap',
+          label: isTransporter ? 'Muatan tercatat' : 'Form lengkap',
           value: b.formComplete,
           tone: AppTheme.accent,
           icon: Icons.fact_check_outlined,
@@ -337,6 +345,13 @@ class _AreaGuestsPageState extends State<AreaGuestsPage> {
                       ),
                     ),
                     const SizedBox(width: 8),
+                    if (g.isTransporter) ...[
+                      ConsolePill(
+                        text: 'Antrean #${g.queueNumber}',
+                        tone: AppTheme.brandGold,
+                      ),
+                      const SizedBox(width: 6),
+                    ],
                     ConsolePill(
                       text: planStatusLabel(g.status),
                       tone: planStatusTone(g.status),

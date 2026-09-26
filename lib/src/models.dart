@@ -758,8 +758,11 @@ class ActiveGuestRow {
   /// Papan adalah daftar, bukan surat jalan: sisanya dibuka di detail.
   final int loadCount;
   final String firstShipmentNo;
+  final int queueNumber;
 
   bool get isTransporter => visitorType == 'transporter';
+  bool get dibatalkan =>
+      status == 'expired' || status == 'cancelled' || status == 'batal';
 
   ActiveGuestRow({
     required this.planId,
@@ -785,10 +788,11 @@ class ActiveGuestRow {
     this.loadType = '',
     this.loadCount = 0,
     this.firstShipmentNo = '',
+    this.queueNumber = 0,
   });
 
-  /// Still physically on site: checked in, not yet checked out.
-  bool get onSite => checkinAt != null && checkoutAt == null;
+  /// Still physically on site: checked in, not yet checked out, and not cancelled.
+  bool get onSite => checkinAt != null && checkoutAt == null && !dibatalkan;
 
   factory ActiveGuestRow.fromJson(Map<String, dynamic> j) => ActiveGuestRow(
     planId: (j['plan_id'] as num?)?.toInt() ?? 0,
@@ -806,10 +810,6 @@ class ActiveGuestRow {
     checkoutComplete: j['checkout_complete'] == true,
     currentStep: (j['current_step'] as num?)?.toInt() ?? 0,
     missingFields: [for (final f in (j['missing_fields'] as List? ?? [])) '$f'],
-    // Belum dikirim server per 2026-08-30 (lihat
-    // prompt-server-papan-data-transporter.md) -- membaca kuncinya di
-    // sini sekarang supaya begitu server menyusulnya, papan langsung
-    // terisi tanpa perubahan client lagi.
     visitorType: j['visitor_type'] as String? ?? 'tamu',
     simExpiresAt: j['sim_expires_at'] as String? ?? '',
     simExpired: j['sim_expired'] == true,
@@ -818,6 +818,9 @@ class ActiveGuestRow {
     loadType: j['load_type'] as String? ?? '',
     loadCount: (j['load_count'] as num?)?.toInt() ?? 0,
     firstShipmentNo: j['first_shipment_no'] as String? ?? '',
+    queueNumber: (j['queue_number'] as num?)?.toInt() ??
+        (j['plan_id'] as num?)?.toInt() ??
+        0,
   );
 }
 
